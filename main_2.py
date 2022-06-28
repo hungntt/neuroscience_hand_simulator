@@ -33,6 +33,8 @@ BUFFER_SIZE = 408 * CHUNK_SIZE * 2
 def main(args):
     # Open EMG socket and connect it to the EMG device
     TASK = args.data
+    rms = args.rms
+    plot = args.plot
     print(TASK)
     recording_time = 60 if TASK == "Test" else 10
 
