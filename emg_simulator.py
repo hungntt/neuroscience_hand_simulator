@@ -1,6 +1,10 @@
 import socket
 import select
 import time
+import argparse
+
+from jsonschema._validators import required
+
 from emg_datasets import TrainData, TestData
 
 
@@ -66,7 +70,7 @@ class EMGSimulator:
 
         while True:
             read_sockets, write_sockets, exception_sockets = select.select(
-                self.sockets_list, self.sockets_list[1:], self.sockets_list
+                    self.sockets_list, self.sockets_list[1:], self.sockets_list
             )
             for notified_socket in read_sockets:
                 if notified_socket == self.server_socket:
@@ -79,7 +83,7 @@ class EMGSimulator:
 
                         self.sockets_list.append(client_socket)
                         print(
-                            f"Accepted new connection from {client_address[0]}: {client_address[1]}!"
+                                f"Accepted new connection from {client_address[0]}: {client_address[1]}!"
                         )
                         client_socket.send(self.feedback_msg)
 
@@ -139,18 +143,27 @@ class EMGSimulator:
                     continue
 
 
-def main():
-    # emg_dataset = TrainData().fist_emg["Fist"]
-    # emg_dataset = TrainData().thumb_emg["Thumb"]
-    # emg_dataset = TrainData().index_emg["Index"]
-    # emg_dataset = TrainData().middle_emg["Middle"]
-    # emg_dataset = TrainData().ring_emg["Ring"]
-    # emg_dataset = TrainData().pinky_emg["Pinky"]
-    emg_dataset = TestData().test_emg["Test"]
+def main(args):
+    dataset = args.data
+    print(f"Starting EMG simulator on {dataset}")
+    if dataset == "Test":
+        emg_dataset = TestData().test_emg["Test"]
+    elif dataset == "Fist":
+        emg_dataset = TrainData().fist_emg["Fist"]
+    elif dataset == "Thumb":
+        emg_dataset = TrainData().thumb_emg["Thumb"]
+    elif dataset == "Index":
+        emg_dataset = TrainData().index_emg["Index"]
+    elif dataset == "Middle":
+        emg_dataset = TrainData().middle_emg["Middle"]
+    elif dataset == "Ring":
+        emg_dataset = TrainData().ring_emg["Ring"]
+    elif dataset == "Pinky":
+        emg_dataset = TrainData().pinky_emg["Pinky"]
 
     # DON'T CHANGE ANYTHING HERE
     emg_socket = EMGSimulator(
-        tcp_ip="localhost", tcp_port=31000, fread=8, emg_data=emg_dataset
+            tcp_ip="localhost", tcp_port=31000, fread=8, emg_data=emg_dataset
     )
     emg_socket.open_connection()
     print("Server open for connections!")
@@ -158,4 +171,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data', type=str, help='Data to be used for the simulation', default="Fist")
+    args = parser.parse_args()
+    main(args)
