@@ -34,7 +34,7 @@ class TestDataset:
 
 if __name__ == "__main__":
     # TODO: Create a TestDataset object and call get_dataset() to save the test data.
-    test_dataset = TestDataset(test_data_path="test_data/Test.npy").get_dataset()
+    test_dataset = TestDataset(test_data_path="original_test_data/Test.npy").get_dataset()
 
     # TODO: Load your saved xgboost model
     model = xgb.Booster()
