@@ -1,6 +1,5 @@
 import numpy as np
 import xgboost as xgb
-from sklearn.metrics import precision_score
 
 
 class TestDataset:
@@ -38,12 +37,10 @@ if __name__ == "__main__":
 
     # TODO: Load your saved xgboost model
     model = xgb.Booster()
-    model.load_model("model_2.json")
+    model.load_model("model_4.json")
 
     # TODO: Predict the output of the model on the testing data and save it.
     predictions = model.predict(test_dataset)
-    # Score the predictions
-    print(precision_score(test_dataset.get_label(), predictions, average='macro'))
 
     # This code calculates the overall accuracy. Please aim for > 75%.
     count = 0

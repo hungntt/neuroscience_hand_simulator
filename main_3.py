@@ -2,6 +2,7 @@ from typing import Dict
 
 import numpy as np
 import xgboost as xgb
+from tqdm import tqdm
 
 
 class TrainDataset:
@@ -36,6 +37,17 @@ class TrainDataset:
         return xgb.DMatrix(data=train_data, label=train_labels)
 
 
+def xgb_progressbar(rounds=1000):
+    """Progressbar for xgboost using tqdm library."""
+
+    pbar = tqdm(total=rounds)
+
+    def callback(_, ):
+        pbar.update(1)
+
+    return callback
+
+
 if __name__ == "__main__":
     dtrain = TrainDataset(
             class_datafile_map={
@@ -52,15 +64,15 @@ if __name__ == "__main__":
     # TODO: Parameters for XGBoost training
     param = {  # error evaluation for multiclass training
         'num_class': 6,
-        'eta': 0.42892,
         'objective': 'multi:softmax',
-        'max_depth': 16,
-        'max_leaves': 4,
-        'min_child_weight': 4,
-        'subsample': 0.950323,
+        'max_depth': 29,
+        'verbosity': 1,
+        'eta': 0.3328483951122373,
+        'min_child_weight': 5,
+        'subsample': 0.626656143893046,
     }
 
-    model_xgb = xgb.train(params=param, dtrain=dtrain, num_boost_round=100)
+    model_xgb = xgb.train(params=param, dtrain=dtrain, num_boost_round=50, verbose_eval=True)
 
     # TODO: Save the model here (hint: it should be 1 line)
-    model_xgb.save_model(f"model_2.json")
+    model_xgb.save_model(f"model_4.json")

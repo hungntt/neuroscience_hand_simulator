@@ -85,5 +85,5 @@ def main(model_xgb):
 
 if __name__ == "__main__":
     model_xgb = xgb.Booster()
-    model_xgb.load_model("model_2.json")
+    model_xgb.load_model("model_4.json")
     main(model_xgb)
