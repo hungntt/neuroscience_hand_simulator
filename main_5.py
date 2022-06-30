@@ -1,9 +1,11 @@
+import math
 import socket
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import xgboost as xgb
-from scipy.interpolate import make_interp_spline, BSpline
+from scipy.signal import lfilter
+from scipy.signal import savgol_filter
 
 # Header for receiving activation response from the EMG device
 EMG_HEADER = 8
@@ -43,10 +45,7 @@ def main(model_xgb):
     print(f"Connection answer by EMG: {emg_socket.recv(EMG_HEADER).decode('utf-8')}")
 
     # TODO: Define the recording time
-    recording_time = 80
-
-    # Initialise prediction variable in which you want to place the predicted output of your classifier
-    prediction = np.zeros(recording_time * CHUNK_SIZE)
+    recording_time = 60
 
     # TODO: Write a loop where you receive the chunks from the EMG simulator. Slice the data in the correct shape
     #  of 320 channels (electrode grids number 0, 2, 3, 4, 5). Use the sliced chunk as input to your model and let it
@@ -66,15 +65,6 @@ def main(model_xgb):
     second_batch = signal[128:384, :]  # Cover last 256 EMG channels
     channel_data = np.concatenate((first_batch, second_batch), axis=0)
 
-    # rms_of_all_channels = []
-    # for channel in tqdm(range(channel_data.shape[0])):
-    #     rms_of_a_channel = []
-    #     for i in range(len(channel_data[channel])):
-    #         window = channel_data[channel][i: i + window_samples].astype(int)
-    #         window_average = np.sqrt(abs(np.sum(np.square(window)) / window_samples))
-    #         rms_of_a_channel.append(window_average)
-    #     rms_of_all_channels.append(rms_of_a_channel)
-
     rms_of_all_channels = np.array(channel_data)
     test_data = rms_of_all_channels[0:320, :].T
     test_data = xgb.DMatrix(data=test_data, label=None)
@@ -84,15 +74,16 @@ def main(model_xgb):
         window_average = np.sqrt(abs(np.sum(np.square(window)) / window_samples))
         prediction[i] = window_average
 
-    # x_y_spline = make_interp_spline(range(len(prediction)), prediction, k=5)
-    # x_new = np.linspace(0, len(prediction) - 1, len(prediction))
-    # y_new = x_y_spline(x_new)
-    # plt.plot(x_new, y_new)
-    plt.plot(prediction)
+    time = np.arange(0, len(prediction) / SAMPLING_FREQUENCY, 1 / SAMPLING_FREQUENCY)
+    yy = savgol_filter(prediction, 101, 2)
+    plt.plot(time, yy)
+    plt.xlabel("Time [s]")
+    plt.ylabel("Electrode")
+    plt.title("Prediction as a feedback from the patient")
     plt.show()
 
 
 if __name__ == "__main__":
     model_xgb = xgb.Booster()
-    model_xgb.load_model("model.json")
+    model_xgb.load_model("model_2.json")
     main(model_xgb)

@@ -104,31 +104,32 @@ def main(args):
 
         rms_of_all_channels = np.array(rms_of_all_channels)
 
-    print("Saving the dataset")
-    np.save(f"./original_test_data/{TASK}.npy", rms_of_all_channels) if TASK == "Test" \
-        else np.save(f"./original_train_data/{TASK}.npy", rms_of_all_channels)
+    # Save the RMS signals into the results/ folder
+    print('Saving the dataset')
+    np.save(f'./{"test" if TASK == "Test" else "train"}_data/{TASK}.npy', rms_of_all_channels) if plot else \
+        np.save(f'./original_{"test" if TASK == "Test" else "train"}_data/{TASK}.npy', rms_of_all_channels)
 
     if plot:
+        time = np.arange(0, len(rms_of_all_channels) / SAMPLING_FREQUENCY, 1 / SAMPLING_FREQUENCY)
         plt.figure(1)
         plt.clf()
-        plt.plot(channel_data[0, :].T)  # choose here how many channels to plot
+        plt.plot(time, channel_data[0, :].T)  # choose here how many channels to plot
         # plt.plot(rms)
-        plt.plot(np.load(f"./original_train_data/{TASK}.npy"))
-        plt.xlabel('Samples')
+        plt.plot(np.load(f'./{"test" if TASK == "Test" else "train"}_data/{TASK}.npy'))
+        plt.xlabel('Times [s]')
         plt.ylabel('EMG')
-        plt.title('Average RMS')
+        plt.title(f'Average RMS on ')
         plt.grid(True)
 
         # Plot data in realtime
         plt.figure(2)
         i = 0
-        time = np.arange(0, len(rms) / SAMPLING_FREQUENCY, 1 / SAMPLING_FREQUENCY)
-        while i < len(rms):
+        while i < len(rms_of_all_channels):
             plt.cla()
-            plt.plot(time[i:i + 1000], rms[i:i + 1000])
-            plt.xlabel('Samples')
+            plt.plot(time[i:i + 1000], rms_of_all_channels[i:i + 1000])
+            plt.xlabel('Times [s]')
             plt.ylabel('EMG')
-            plt.title('Realtime plotting RMS')
+            plt.title(f'Real-time plotting {TASK} RMS')
             plt.grid(True)
             plt.pause(1 / SAMPLING_FREQUENCY)
             i += 20

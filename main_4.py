@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     # TODO: Load your saved xgboost model
     model = xgb.Booster()
-    model.load_model("model.json")
+    model.load_model("model_2.json")
 
     # TODO: Predict the output of the model on the testing data and save it.
     predictions = model.predict(test_dataset)

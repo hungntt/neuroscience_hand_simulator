@@ -59,7 +59,6 @@ def main():
             signal = message
 
     time = np.arange(0, len(signal[0]) / SAMPLING_FREQUENCY, 1 / SAMPLING_FREQUENCY)
-
     plt.figure(1)
     plt.clf()
     plt.plot(time, signal[0, :].T)  # choose here how many channels to plot

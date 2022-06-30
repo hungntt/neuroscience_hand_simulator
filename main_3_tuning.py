@@ -1,7 +1,16 @@
+import os
+import sys
 from typing import Dict
 
 import numpy as np
 import xgboost as xgb
+from ray import tune
+from ray.tune.integration.xgboost import TuneReportCheckpointCallback
+from ray.tune.schedulers import ASHAScheduler
+
+from main_4 import TestDataset
+
+sys.path.insert(0, "/home/ubuntu/neuroscience_hand_simulator/")
 
 
 class TrainDataset:
@@ -33,10 +42,11 @@ class TrainDataset:
 
         train_data = np.concatenate(np.array(train_data), axis=0)
         train_labels = np.array(train_labels)
+        print(train_data.shape, train_labels.shape)
         return xgb.DMatrix(data=train_data, label=train_labels)
 
 
-if __name__ == "__main__":
+def train_model(param):
     dtrain = TrainDataset(
             class_datafile_map={
                 # TODO: load your training data from the train_data/ folder
@@ -49,18 +59,36 @@ if __name__ == "__main__":
             }
     ).get_dataset()
 
-    # TODO: Parameters for XGBoost training
+    dtest = TestDataset(
+            test_data_path="/home/ubuntu/neuroscience_hand_simulator/original_test_data/Test.npy").get_dataset()
+
+    # Train the classifier
+    results = {}
+    xgb.train(
+            param,
+            dtrain,
+            evals=[(dtest, "eval")],
+            evals_result=results,
+            verbose_eval=False)
+    accuracy = 1. - results["eval"]["merror"][-1]
+    tune.report(mean_accuracy=accuracy, done=True)
+
+
+if __name__ == "__main__":
     param = {  # error evaluation for multiclass training
-        'num_class': 6,
-        'eta': 0.42892,
         'objective': 'multi:softmax',
-        'max_depth': 16,
-        'max_leaves': 4,
-        'min_child_weight': 4,
-        'subsample': 0.950323,
+        'num_class': 6,
+        'eta': tune.loguniform(2e-1, 6e-1),
+        'eval_metric': ['mlogloss', 'merror'],
+        'max_depth': tune.randint(14, 20),
+        'max_leaves': tune.randint(1, 15),
+        'subsample': tune.uniform(0.5, 1.0),
+        'min_child_weight': tune.choice([1, 2, 3, 4, 5]),
     }
 
-    model_xgb = xgb.train(params=param, dtrain=dtrain, num_boost_round=100)
-
-    # TODO: Save the model here (hint: it should be 1 line)
-    model_xgb.save_model(f"model_2.json")
+    analysis = tune.run(
+            train_model,
+            resources_per_trial={"cpu": 1, "gpu": 0.1},
+            config=param,
+            num_samples=20,
+    )
