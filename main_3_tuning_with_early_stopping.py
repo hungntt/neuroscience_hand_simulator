@@ -10,7 +10,7 @@ from ray.tune.schedulers import ASHAScheduler
 
 from main_4 import TestDataset
 
-sys.path.insert(0, "/home/ubuntu/neuroscience_hand_simulator/")
+sys.path.insert(0, "")
 
 
 class TrainDataset:
@@ -50,17 +50,17 @@ def train_model(param):
     dtrain = TrainDataset(
             class_datafile_map={
                 # TODO: load your training data from the train_data/ folder
-                0: "/home/ubuntu/neuroscience_hand_simulator/original_train_data/Thumb.npy",
-                1: "/home/ubuntu/neuroscience_hand_simulator/original_train_data/Index.npy",
-                2: "/home/ubuntu/neuroscience_hand_simulator/original_train_data/Middle.npy",
-                3: "/home/ubuntu/neuroscience_hand_simulator/original_train_data/Ring.npy",
-                4: "/home/ubuntu/neuroscience_hand_simulator/original_train_data/Pinky.npy",
-                5: "/home/ubuntu/neuroscience_hand_simulator/original_train_data/Fist.npy",
+                0: "original_train_data/Thumb.npy",
+                1: "original_train_data/Index.npy",
+                2: "original_train_data/Middle.npy",
+                3: "original_train_data/Ring.npy",
+                4: "original_train_data/Pinky.npy",
+                5: "original_train_data/Fist.npy",
             }
     ).get_dataset()
 
     dtest = TestDataset(
-            test_data_path="/home/ubuntu/neuroscience_hand_simulator/original_test_data/Test.npy").get_dataset()
+            test_data_path="original_test_data/Test.npy").get_dataset()
 
     # Train the classifier
     results = {}

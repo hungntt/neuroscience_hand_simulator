@@ -40,12 +40,12 @@ def main():
 
     # TODO: Write a loop where you receive the chunks from the EMG simulator and plot the first channel after the
     #  recording ends. Use "message = np.frombuffer(emg_socket.recv(BUFFER_SIZE), dtype=np.int16).reshape((408, -1),
-    #  order="F")" to receive the chunk. Save the recorded data in the result/ folder. In  this  task,  you  need  to
+    #  order="F")" to receive the chunk. Save the recorded data in the result/ folder. In this task, you need to
     #  save  the streamed data in a list while recording. After the streaming has finished plot the first channel and
     #  save the recorded data in the result/ folder. The recording time is 20 seconds. The EMG streams the data in
     #  chunks whose size depends on the sampling frequency and the streaming  refresh  rate  of  the  device. For
-    #  your  exercise,  the  sampling  frequency  is  2048 Hz,and  the  refresh  rate  is  8  Hz. From  the  sampling
-    #  frequency  and  refresh  rate  you  can  then calculate the size of one chunk.
+    #  your exercise, the sampling frequency is 2048 Hz, and the refresh rate is 8 Hz. From the sampling
+    #  frequency and refresh rate you can then calculate the size of one chunk.
 
     recording_time = 20
     loop_size = recording_time * FREAD  # since a new chunk arrives once every 8th of a second and the recording
